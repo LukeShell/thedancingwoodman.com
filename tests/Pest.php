@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ShippingZone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -47,4 +48,14 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+function seedUkFreeShipping(): ShippingZone
+{
+    return ShippingZone::factory()->free()->create([
+        'name' => 'United Kingdom',
+        'country_code' => 'GB',
+        'postcode_patterns' => null,
+        'priority' => 100,
+    ]);
 }
