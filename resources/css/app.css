@@ -9,44 +9,169 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Font families — Modern Rustic */
+    --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Playfair Display', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
 
-    --color-zinc-50: #fafafa;
-    --color-zinc-100: #f5f5f5;
-    --color-zinc-200: #e5e5e5;
-    --color-zinc-300: #d4d4d4;
-    --color-zinc-400: #a3a3a3;
-    --color-zinc-500: #737373;
-    --color-zinc-600: #525252;
-    --color-zinc-700: #404040;
-    --color-zinc-800: #262626;
-    --color-zinc-900: #171717;
-    --color-zinc-950: #0a0a0a;
+    /* Brand palette — named */
+    --color-oak-deep: #251D15;
+    --color-sapwood-cream: #F9F7F2;
+    --color-timber-ash: #A89F91;
+    --color-brand-accent: #E60023;
+    --color-charcoal-text: #1A1A1A;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
-    --color-accent-foreground: var(--color-white);
-}
+    /* Surfaces */
+    --color-surface: #fbf9f4;
+    --color-surface-dim: #dbdad5;
+    --color-surface-bright: #fbf9f4;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f5f3ee;
+    --color-surface-container: #f0eee9;
+    --color-surface-container-high: #eae8e3;
+    --color-surface-container-highest: #e4e2dd;
+    --color-surface-variant: #e4e2dd;
+    --color-surface-tint: #685c52;
+    --color-inverse-surface: #30312e;
+    --color-inverse-on-surface: #f2f1ec;
 
-@layer theme {
-    .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
-    }
+    /* Foreground / content */
+    --color-on-surface: #1b1c19;
+    --color-on-surface-variant: #4d453f;
+    --color-outline: #7e756e;
+    --color-outline-variant: #d0c4bc;
+
+    /* Primary */
+    --color-primary: #090501;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #251d15;
+    --color-on-primary-container: #918479;
+    --color-inverse-primary: #d3c4b7;
+    --color-primary-fixed: #f0e0d3;
+    --color-primary-fixed-dim: #d3c4b7;
+    --color-on-primary-fixed: #221a12;
+    --color-on-primary-fixed-variant: #4f453b;
+
+    /* Secondary */
+    --color-secondary: #655d51;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #e9decf;
+    --color-on-secondary-container: #696255;
+    --color-secondary-fixed: #ece1d2;
+    --color-secondary-fixed-dim: #cfc5b6;
+    --color-on-secondary-fixed: #201b12;
+    --color-on-secondary-fixed-variant: #4c463b;
+
+    /* Tertiary */
+    --color-tertiary: #140000;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #460004;
+    --color-on-tertiary-container: #ff3239;
+    --color-tertiary-fixed: #ffdad7;
+    --color-tertiary-fixed-dim: #ffb3ad;
+    --color-on-tertiary-fixed: #410004;
+    --color-on-tertiary-fixed-variant: #930012;
+
+    /* Error */
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+
+    /* Background */
+    --color-background: #fbf9f4;
+    --color-on-background: #1b1c19;
+
+    /* Typography scale — Modern Rustic */
+    --text-headline-xl: 48px;
+    --text-headline-xl--line-height: 1.1;
+    --text-headline-xl--letter-spacing: -0.02em;
+    --text-headline-xl--font-weight: 700;
+
+    --text-headline-lg: 32px;
+    --text-headline-lg--line-height: 1.2;
+    --text-headline-lg--font-weight: 700;
+
+    --text-headline-md: 24px;
+    --text-headline-md--line-height: 1.3;
+    --text-headline-md--font-weight: 600;
+
+    --text-headline-sm: 20px;
+    --text-headline-sm--line-height: 1.3;
+    --text-headline-sm--font-weight: 600;
+
+    --text-body-lg: 18px;
+    --text-body-lg--line-height: 1.6;
+    --text-body-lg--font-weight: 400;
+
+    --text-body-md: 16px;
+    --text-body-md--line-height: 1.6;
+    --text-body-md--font-weight: 400;
+
+    --text-body-sm: 14px;
+    --text-body-sm--line-height: 1.5;
+    --text-body-sm--font-weight: 400;
+
+    --text-label-md: 14px;
+    --text-label-md--line-height: 1.2;
+    --text-label-md--letter-spacing: 0.05em;
+    --text-label-md--font-weight: 500;
+
+    --text-label-sm: 12px;
+    --text-label-sm--line-height: 1.2;
+    --text-label-sm--letter-spacing: 0.08em;
+    --text-label-sm--font-weight: 700;
+
+    /* Radii */
+    --radius-sm: 0.125rem;     /* 2px */
+    --radius: 0.25rem;         /* 4px */
+    --radius-md: 0.375rem;     /* 6px */
+    --radius-lg: 0.5rem;       /* 8px */
+    --radius-xl: 0.75rem;      /* 12px */
+    --radius-full: 9999px;
+
+    /* Container */
+    --container-content: 1280px;
+
+    /* Custom shadow */
+    --shadow-rustic-hover: 0 10px 30px rgb(37 29 21 / 0.05);
 }
 
 @layer base {
-
     *,
     ::after,
     ::before,
     ::backdrop,
     ::file-selector-button {
-        border-color: var(--color-gray-200, currentColor);
+        border-color: var(--color-outline-variant, currentColor);
+    }
+
+    /* Storefront body defaults — scoped to body so Flux admin (which lives on its own
+       layout/panel root) keeps its own typography. */
+    body.storefront {
+        background-color: var(--color-sapwood-cream);
+        color: var(--color-charcoal-text);
+        font-family: var(--font-sans);
+        font-size: var(--text-body-md);
+        line-height: 1.6;
+    }
+
+    body.storefront h1,
+    body.storefront h2,
+    body.storefront h3,
+    body.storefront h4 {
+        font-family: var(--font-display);
+        color: var(--color-oak-deep);
     }
 }
 
+@layer utilities {
+    .bg-grain {
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.145 0 0 0 0 0.114 0 0 0 0 0.082 0 0 0 0.06 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+        background-repeat: repeat;
+    }
+}
+
+/* Flux overrides preserved from base install */
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }
@@ -58,9 +183,5 @@
 input:focus[data-flux-control],
 textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
-    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+    @apply outline-hidden ring-2 ring-primary ring-offset-2 ring-offset-sapwood-cream;
 }
-
-/* \[:where(&)\]:size-4 {
-    @apply size-4;
-} */
