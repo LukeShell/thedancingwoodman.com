@@ -16,6 +16,7 @@ class BasketItem extends Model
     protected $fillable = [
         'basket_id',
         'product_variant_id',
+        'finish_id',
         'quantity',
     ];
 
@@ -31,6 +32,11 @@ class BasketItem extends Model
     public function variant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
+    public function finish(): BelongsTo
+    {
+        return $this->belongsTo(Finish::class);
     }
 
     public function addons(): BelongsToMany

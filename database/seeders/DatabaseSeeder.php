@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            FinishSeeder::class,
+            TrustBadgeSeeder::class,
             CatalogSeeder::class,
             ShippingZoneSeeder::class,
         ]);

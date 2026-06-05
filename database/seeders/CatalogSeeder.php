@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Finish;
 use App\Models\Product;
+use App\Models\TrustBadge;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -38,6 +40,12 @@ class CatalogSeeder extends Seeder
         $this->seedCoffeeTableWithBench([$livingRoom->id]);
     }
 
+    private function attachStorefrontDefaults(Product $product): void
+    {
+        $product->finishes()->sync(Finish::query()->where('is_active', true)->pluck('id')->all());
+        $product->trustBadges()->sync(TrustBadge::query()->where('is_active', true)->pluck('id')->all());
+    }
+
     /**
      * @param  array<int, int>  $categoryIds
      */
@@ -52,6 +60,7 @@ class CatalogSeeder extends Seeder
             'is_active' => true,
         ]);
         $product->categories()->sync($categoryIds);
+        $this->attachStorefrontDefaults($product);
 
         $diameter = $product->attributes()->create(['name' => 'Diameter', 'sort_order' => 1]);
         $finish = $product->attributes()->create(['name' => 'Finish', 'sort_order' => 2]);
@@ -96,6 +105,7 @@ class CatalogSeeder extends Seeder
             'is_active' => true,
         ]);
         $product->categories()->sync($categoryIds);
+        $this->attachStorefrontDefaults($product);
 
         $length = $product->attributes()->create(['name' => 'Length', 'sort_order' => 1]);
         $depth = $product->attributes()->create(['name' => 'Depth', 'sort_order' => 2]);
@@ -139,6 +149,7 @@ class CatalogSeeder extends Seeder
             'is_active' => true,
         ]);
         $product->categories()->sync($categoryIds);
+        $this->attachStorefrontDefaults($product);
 
         $finish = $product->attributes()->create(['name' => 'Finish', 'sort_order' => 1]);
         $natural = $finish->values()->create(['value' => 'Natural', 'sort_order' => 0]);

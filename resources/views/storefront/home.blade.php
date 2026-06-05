@@ -6,34 +6,34 @@
             'label' => __('Dining Tables'),
             'meta' => __('Large Rectangular | Round | Indoor & Outdoor'),
             'span' => 'md:col-span-8',
-            'tone' => 'bg-primary-container',
+            'image' => asset('images/home-bento-table.jpg'),
         ],
         [
             'label' => __('Coffee Tables'),
             'meta' => __('Wooden Coffee | Side Tables'),
             'span' => 'md:col-span-4',
-            'tone' => 'bg-secondary-fixed-dim',
+            'image' => asset('images/home-bento-coffee.jpg'),
         ],
         [
             'label' => __('Doors'),
             'meta' => __('Industrial Steel Runner | Farmhouse'),
             'span' => 'md:col-span-5',
-            'tone' => 'bg-on-secondary-fixed-variant',
+            'image' => asset('images/home-bento-door.jpg'),
         ],
         [
             'label' => __('Accessories'),
             'meta' => __('Bath Caddies | Serving Trays | Boards'),
             'span' => 'md:col-span-7',
-            'tone' => 'bg-secondary',
+            'image' => asset('images/home-bento-bath.jpg'),
         ],
     ];
 @endphp
 
 @section('content')
     {{-- Hero --}}
-    <section class="relative flex h-[85vh] items-center overflow-hidden bg-oak-deep">
-        <div class="bg-grain absolute inset-0 z-0 bg-primary-container opacity-90"></div>
-        <div class="absolute inset-0 z-0 bg-gradient-to-r from-oak-deep via-oak-deep/70 to-transparent"></div>
+    <section class="relative flex h-[85vh] items-center overflow-hidden bg-oak-deep" style="background-image: url('{{ asset('images/wooden-rustic-furniture.png') }}'); background-size: cover; background-position: center;">
+        <!-- <div class="bg-grain absolute inset-0 z-0 bg-primary-container opacity-90"></div> -->
+        <!-- <div class="absolute inset-0 z-0 bg-gradient-to-r from-oak-deep via-oak-deep/70 to-transparent"></div> -->
 
         <x-storefront.container as="div" class="relative z-10 text-white">
             <div class="max-w-2xl border-l-4 border-sapwood-cream bg-oak-deep/40 p-12 backdrop-blur-sm">
@@ -43,10 +43,9 @@
                 <h1 class="mb-8 font-display text-3xl leading-tight text-white sm:text-headline-xl">
                     {{ __('The Outside Is On') }}
                 </h1>
-                <a href="{{ route('shop.index') }}"
-                   class="inline-block bg-sapwood-cream px-10 py-5 font-sans text-label-md font-bold uppercase tracking-widest text-oak-deep transition-all hover:-translate-y-1 hover:bg-white">
+                <x-storefront.button :href="route('shop.index')" variant="cream" size="lg">
                     {{ __('Shop Our Outdoor Range') }}
-                </a>
+                </x-storefront.button>
             </div>
         </x-storefront.container>
     </section>
@@ -58,10 +57,13 @@
                 @foreach ($categories as $category)
                     <a href="{{ route('shop.index') }}"
                        class="group relative h-[400px] overflow-hidden {{ $category['span'] }} md:h-full">
-                        <div class="bg-grain absolute inset-0 {{ $category['tone'] }} transition-transform duration-700 group-hover:scale-105"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-oak-deep/80 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-80"></div>
+                        <img src="{{ $category['image'] }}"
+                             alt="{{ $category['label'] }}"
+                             loading="lazy"
+                             class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-oak-deep/90 via-transparent to-transparent group-hover:opacity-70 transition-opacity opacity-100"></div>
                         <div class="absolute bottom-10 left-10 text-white">
-                            <h3 class="mb-2 font-display text-headline-lg">{{ $category['label'] }}</h3>
+                            <h3 class="mb-2 font-display text-headline-lg text-white">{{ $category['label'] }}</h3>
                             <p class="font-sans text-label-md uppercase tracking-wider text-sapwood-cream/80">
                                 {{ $category['meta'] }}
                             </p>
@@ -81,11 +83,10 @@
                     <x-storefront.heading :level="2">{{ __('Our Best Sellers') }}</x-storefront.heading>
                     <div class="mt-4 h-1 w-20 bg-oak-deep"></div>
                 </div>
-                <a href="{{ route('shop.index') }}"
-                   class="group flex items-center gap-2 font-sans text-label-md font-bold uppercase tracking-widest text-oak-deep transition-transform hover:translate-x-2">
+                <x-storefront.button :href="route('shop.index')" variant="link" size="md">
                     {{ __('Explore Full Shop') }}
                     <span aria-hidden="true">&rarr;</span>
-                </a>
+                </x-storefront.button>
             </div>
 
             @if ($featured->isEmpty())
@@ -166,12 +167,12 @@
                     {{ __('“Our handmade furniture has brought joy to thousands of customers who value thoughtful craftsmanship and lasting quality. The 5-star reviews we’ve earned on Etsy and Trustpilot reflect the experience we strive to provide every time.”') }}
                 </p>
                 <div class="flex flex-wrap justify-center gap-6">
-                    <a href="#" class="bg-oak-deep px-8 py-4 font-sans text-label-sm font-bold uppercase tracking-widest text-white transition-colors hover:bg-primary">
+                    <x-storefront.button href="#" variant="primary" size="md">
                         {{ __('Etsy Reviews') }}
-                    </a>
-                    <a href="#" class="border border-oak-deep px-8 py-4 font-sans text-label-sm font-bold uppercase tracking-widest text-oak-deep transition-colors hover:bg-sapwood-cream">
+                    </x-storefront.button>
+                    <x-storefront.button href="#" variant="secondary" size="md">
                         {{ __('Trustpilot Reviews') }}
-                    </a>
+                    </x-storefront.button>
                 </div>
             </div>
         </x-storefront.container>
@@ -219,10 +220,9 @@
                                class="w-full border-x-0 border-t-0 border-b border-timber-ash bg-transparent px-0 py-3 font-sans text-body-md focus:border-oak-deep focus:ring-0" />
                         <textarea name="message" rows="4" placeholder="{{ __('Message *') }}"
                                   class="w-full border-x-0 border-t-0 border-b border-timber-ash bg-transparent px-0 py-3 font-sans text-body-md focus:border-oak-deep focus:ring-0"></textarea>
-                        <button type="submit"
-                                class="w-full bg-oak-deep py-5 font-sans text-label-sm font-bold uppercase tracking-widest text-white transition-opacity hover:opacity-90">
+                        <x-storefront.button type="submit" variant="primary" size="lg" class="w-full">
                             {{ __('Send Message') }}
-                        </button>
+                        </x-storefront.button>
                     </form>
                 </div>
             </div>

@@ -67,7 +67,7 @@ class Basket extends Model
      *
      * @param  array<int>  $addonIds
      */
-    public function addItem(ProductVariant $variant, array $addonIds = [], int $quantity = 1): BasketItem
+    public function addItem(ProductVariant $variant, array $addonIds = [], int $quantity = 1, ?int $finishId = null): BasketItem
     {
         $normalizedAddonIds = collect($addonIds)
             ->map(fn ($id) => (int) $id)
@@ -78,6 +78,7 @@ class Basket extends Model
 
         $existing = $this->items()
             ->where('product_variant_id', $variant->id)
+            ->where('finish_id', $finishId)
             ->with('addons')
             ->get()
             ->first(function (BasketItem $item) use ($normalizedAddonIds) {
@@ -89,11 +90,12 @@ class Basket extends Model
         if ($existing) {
             $existing->increment('quantity', max(1, $quantity));
 
-            return $existing->fresh(['variant', 'addons']);
+            return $existing->fresh(['variant', 'addons', 'finish']);
         }
 
         $item = $this->items()->create([
             'product_variant_id' => $variant->id,
+            'finish_id' => $finishId,
             'quantity' => max(1, $quantity),
         ]);
 
@@ -101,6 +103,6 @@ class Basket extends Model
             $item->addons()->sync($normalizedAddonIds);
         }
 
-        return $item->load(['variant', 'addons']);
+        return $item->load(['variant', 'addons', 'finish']);
     }
 }

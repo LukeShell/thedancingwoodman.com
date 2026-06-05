@@ -71,6 +71,20 @@ class Product extends Model implements HasMedia
         return $this->hasMany(ProductAddon::class);
     }
 
+    public function finishes(): BelongsToMany
+    {
+        return $this->belongsToMany(Finish::class)
+            ->withPivot('sort_order')
+            ->orderBy('finish_product.sort_order')
+            ->orderBy('finishes.sort_order');
+    }
+
+    public function trustBadges(): BelongsToMany
+    {
+        return $this->belongsToMany(TrustBadge::class)
+            ->orderBy('trust_badges.sort_order');
+    }
+
     public function primaryImage(): ?Media
     {
         return $this->getFirstMedia('primary') ?? $this->getFirstMedia('images');

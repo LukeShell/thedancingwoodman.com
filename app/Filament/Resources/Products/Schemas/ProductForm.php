@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Models\TrustBadge;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -88,6 +89,24 @@ class ProductForm
                             ->preload()
                             ->searchable()
                             ->required(),
+                    ]),
+
+                Section::make('Customisation options')
+                    ->description('Choose which finishes and trust badges appear on this product. Leaving finishes empty hides the finish picker on the storefront.')
+                    ->columnSpan(2)
+                    ->schema([
+                        Select::make('finishes')
+                            ->relationship('finishes', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->helperText('Empty = no finish selector shown for this product.'),
+
+                        Select::make('trustBadges')
+                            ->label('Trust badges')
+                            ->relationship('trustBadges', 'title')
+                            ->multiple()
+                            ->preload()
+                            ->default(fn () => TrustBadge::query()->where('is_active', true)->pluck('id')->all()),
                     ]),
             ])->columns(3);
     }

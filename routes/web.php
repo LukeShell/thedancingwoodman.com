@@ -4,6 +4,7 @@ use App\Http\Controllers\Payments\WebhookController;
 use App\Livewire\Storefront\BasketPage;
 use App\Livewire\Storefront\CheckoutPage;
 use App\Livewire\Storefront\OrderConfirmationPage;
+use App\Livewire\Storefront\ProductPage;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
@@ -46,18 +47,7 @@ Route::get('/shop', function () {
     ]);
 })->name('shop.index');
 
-Route::get('/shop/{product:slug}', function (Product $product) {
-    abort_unless($product->is_active, 404);
-
-    $product->load([
-        'categories',
-        'attributes.values',
-        'variants.attributeValues.attribute',
-        'addons' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
-    ]);
-
-    return view('storefront.product', ['product' => $product]);
-})->name('shop.show');
+Route::livewire('/shop/{product:slug}', ProductPage::class)->name('shop.show');
 
 Route::livewire('/basket', BasketPage::class)->name('basket.show');
 Route::livewire('/checkout', CheckoutPage::class)->name('checkout.show');

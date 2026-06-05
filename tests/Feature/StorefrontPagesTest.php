@@ -34,13 +34,13 @@ it('filters shop index by category', function () {
         ->assertDontSee('Rustic Round Oak Dining Table');
 });
 
-it('renders a product page with variants and addons', function () {
+it('renders a product page with attribute pickers', function () {
     get(route('shop.show', ['product' => 'chunky-coffee-table']))
         ->assertOk()
         ->assertSee('Chunky Coffee Table')
-        ->assertSee('Finish')
-        ->assertSee('Matching Bench')
-        ->assertSee('Available variants');
+        ->assertSee('Select Finish')
+        ->assertSee('Handmade to Order')
+        ->assertSee('Add to Cart');
 });
 
 it('returns 404 for an inactive product', function () {
