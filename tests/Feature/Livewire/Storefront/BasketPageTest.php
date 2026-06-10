@@ -57,3 +57,50 @@ it('shows the empty state when no items exist', function () {
     livewire(BasketPage::class)
         ->assertSee('Your basket is empty.');
 });
+
+it('increments a line quantity', function () {
+    $item = $this->basket->addItem($this->variant, [], 1);
+
+    livewire(BasketPage::class)
+        ->call('incrementItem', $item->id)
+        ->assertDispatched('basket-updated');
+
+    expect($item->fresh()->quantity)->toBe(2);
+});
+
+it('decrements a line quantity', function () {
+    $item = $this->basket->addItem($this->variant, [], 2);
+
+    livewire(BasketPage::class)
+        ->call('decrementItem', $item->id)
+        ->assertDispatched('basket-updated');
+
+    expect($item->fresh()->quantity)->toBe(1);
+});
+
+it('removes a line when decremented below 1', function () {
+    $item = $this->basket->addItem($this->variant, [], 1);
+
+    livewire(BasketPage::class)
+        ->call('decrementItem', $item->id);
+
+    expect($item->fresh())->toBeNull();
+});
+
+it('renders the order summary with shipping copy', function () {
+    $this->basket->addItem($this->variant, [], 1);
+
+    livewire(BasketPage::class)
+        ->assertSee('Order Summary')
+        ->assertSee('Calculated at checkout')
+        ->assertSee('Proceed to Checkout');
+});
+
+it('accepts applyPromo without erroring', function () {
+    $this->basket->addItem($this->variant, [], 1);
+
+    livewire(BasketPage::class)
+        ->set('promoCode', 'WELCOME10')
+        ->call('applyPromo')
+        ->assertHasNoErrors();
+});

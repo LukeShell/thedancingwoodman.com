@@ -15,6 +15,8 @@ class BasketPage extends Component
 {
     public Basket $basket;
 
+    public string $promoCode = '';
+
     public function mount(BasketResolver $resolver): void
     {
         $this->basket = $resolver->current();
@@ -33,11 +35,30 @@ class BasketPage extends Component
         $this->dispatch('basket-updated');
     }
 
+    public function incrementItem(int $itemId): void
+    {
+        $item = $this->basket->items()->findOrFail($itemId);
+
+        $this->updateQuantity($itemId, $item->quantity + 1);
+    }
+
+    public function decrementItem(int $itemId): void
+    {
+        $item = $this->basket->items()->findOrFail($itemId);
+
+        $this->updateQuantity($itemId, $item->quantity - 1);
+    }
+
     public function removeItem(int $itemId): void
     {
         $this->basket->items()->whereKey($itemId)->delete();
 
         $this->dispatch('basket-updated');
+    }
+
+    public function applyPromo(): void
+    {
+        // TODO: hook up promo code lookup once discount rules are defined.
     }
 
     public function render()
@@ -47,6 +68,7 @@ class BasketPage extends Component
                 'variant.product.media',
                 'variant.attributeValues.attribute',
                 'addons',
+                'finish',
             ])
             ->get();
 

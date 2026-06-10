@@ -23,9 +23,11 @@ Route::get('/shop', function () {
     $categories = Category::query()
         ->whereNull('parent_id')
         ->where('is_active', true)
-        ->with(['children' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order')])
+        ->withCount(['products' => fn ($q) => $q->where('is_active', true)])
         ->orderBy('sort_order')
         ->get();
+
+    $totalCount = Product::query()->where('is_active', true)->count();
 
     $activeCategory = null;
     $productsQuery = Product::query()->where('is_active', true);
@@ -38,12 +40,23 @@ Route::get('/shop', function () {
         }
     }
 
-    $products = $productsQuery->orderBy('sort_order')->orderBy('name')->get();
+    $sort = request('sort', 'featured');
+
+    match ($sort) {
+        'price_asc' => $productsQuery->orderBy('base_price'),
+        'price_desc' => $productsQuery->orderByDesc('base_price'),
+        'newest' => $productsQuery->orderByDesc('created_at'),
+        default => $productsQuery->orderBy('sort_order')->orderBy('name'),
+    };
+
+    $products = $productsQuery->paginate(12)->withQueryString();
 
     return view('storefront.shop', [
         'categories' => $categories,
+        'totalCount' => $totalCount,
         'products' => $products,
         'activeCategory' => $activeCategory,
+        'sort' => $sort,
     ]);
 })->name('shop.index');
 

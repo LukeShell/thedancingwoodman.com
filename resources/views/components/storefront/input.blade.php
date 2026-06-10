@@ -8,6 +8,7 @@
     'required' => false,
     'autocomplete' => null,
     'hint' => null,
+    'variant' => 'cream',
 ])
 
 @php
@@ -23,6 +24,8 @@
     $borderClass = ($name && $errors->has($name))
         ? 'border-b-error'
         : 'border-b-timber-ash focus:border-b-oak-deep';
+
+    $backgroundClass = $variant === 'white' ? 'bg-white' : 'bg-sapwood-cream';
 @endphp
 
 <div {{ $attributes->only(['class'])->class('flex flex-col gap-2') }}>
@@ -44,7 +47,7 @@
         @if ($autocomplete) autocomplete="{{ $autocomplete }}" @endif
         @if ($required) required @endif
         @if (count($describedBy)) aria-describedby="{{ implode(' ', $describedBy) }}" @endif
-        {{ $attributes->except(['class'])->class('w-full bg-sapwood-cream border-0 border-b ' . $borderClass . ' px-1 py-3 text-body-md text-charcoal-text placeholder:text-timber-ash focus:outline-none focus:ring-0 transition-colors') }}
+        {{ $attributes->except(['class'])->class('w-full ' . $backgroundClass . ' border-0 border-b ' . $borderClass . ' px-1 py-3 text-body-md text-charcoal-text placeholder:text-timber-ash focus:outline-none focus:ring-0 transition-colors') }}
     />
 
     @if ($hint)

@@ -167,17 +167,13 @@
 
                 {{-- Actions --}}
                 <div class="mb-12 flex flex-col gap-4 sm:flex-row">
-                    <div class="flex h-14 items-center border border-timber-ash/30">
-                        <button type="button" wire:click="decrement" class="px-4 text-oak-deep transition hover:opacity-70" aria-label="{{ __('Decrease quantity') }}">−</button>
-                        <input
-                            type="number"
-                            wire:model="quantity"
-                            min="1"
-                            max="99"
-                            class="w-12 border-none bg-transparent text-center font-sans text-label-md focus:ring-0"
-                        />
-                        <button type="button" wire:click="increment" class="px-4 text-oak-deep transition hover:opacity-70" aria-label="{{ __('Increase quantity') }}">+</button>
-                    </div>
+                    <x-storefront.quantity-stepper
+                        :value="$quantity"
+                        decrement="decrement"
+                        increment="increment"
+                        :label="__('Quantity')"
+                        class="h-14"
+                    />
 
                     <button
                         type="button"

@@ -171,6 +171,32 @@ it('hydrates form fields from the basket on mount', function () {
         ->assertSet('postalCode', 'S1 2AB');
 });
 
+it('renders the numbered step labels for each section', function () {
+    $basket = freshBasketWithItem();
+
+    bindBasketCookie($basket);
+
+    livewire(CheckoutPage::class)
+        ->assertSee('Step 1 of 3')
+        ->assertSee('Step 2 of 3')
+        ->assertSee('Step 3 of 3')
+        ->assertSee('Contact Information')
+        ->assertSee('Shipping Address')
+        ->assertSee('Payment');
+});
+
+it('renders the order summary and complete-purchase CTA', function () {
+    $basket = freshBasketWithItem();
+
+    bindBasketCookie($basket);
+
+    livewire(CheckoutPage::class)
+        ->assertSee('Order Summary')
+        ->assertSee('Complete Purchase')
+        ->assertSee('Eco-Friendly Packaging')
+        ->assertSee('Hand-Checked Quality');
+});
+
 it('shows the checkout link on the basket page when it has items', function () {
     $basket = freshBasketWithItem();
 

@@ -16,7 +16,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.storefront')]
+#[Layout('layouts.checkout')]
 #[Title('Checkout')]
 class CheckoutPage extends Component
 {
