@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Services\DiscountCalculator;
 use Database\Factories\BasketFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -24,6 +26,7 @@ class Basket extends Model
         'country',
         'state',
         'postal_code',
+        'discount_id',
         'converted_at',
     ];
 
@@ -39,6 +42,11 @@ class Basket extends Model
     public function order(): HasOne
     {
         return $this->hasOne(Order::class);
+    }
+
+    public function discount(): BelongsTo
+    {
+        return $this->belongsTo(Discount::class);
     }
 
     public function isConverted(): bool
@@ -59,6 +67,55 @@ class Basket extends Model
             ->sum(fn (BasketItem $item) => (float) $item->lineTotal());
 
         return number_format($total, 2, '.', '');
+    }
+
+    public function subtotalPence(): int
+    {
+        return (int) $this->items()
+            ->with(['variant', 'addons'])
+            ->get()
+            ->sum(fn (BasketItem $item) => (int) round(((float) $item->lineTotal()) * 100));
+    }
+
+    public function discountAmountPence(): int
+    {
+        if ($this->discount_id === null) {
+            return 0;
+        }
+
+        $discount = $this->discount;
+
+        if ($discount === null || ! $discount->isCurrentlyValid()) {
+            return 0;
+        }
+
+        return app(DiscountCalculator::class)->amountPence($this, $discount);
+    }
+
+    public function applyCode(string $code): bool
+    {
+        $normalized = strtoupper(trim($code));
+
+        if ($normalized === '') {
+            return false;
+        }
+
+        $discount = Discount::query()->where('code', $normalized)->first();
+
+        if ($discount === null || ! $discount->isCurrentlyValid() || ! $discount->isUsable($this)) {
+            return false;
+        }
+
+        $this->forceFill(['discount_id' => $discount->id])->save();
+        $this->setRelation('discount', $discount);
+
+        return true;
+    }
+
+    public function removeDiscount(): void
+    {
+        $this->forceFill(['discount_id' => null])->save();
+        $this->unsetRelation('discount');
     }
 
     /**

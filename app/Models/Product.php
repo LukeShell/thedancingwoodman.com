@@ -85,6 +85,11 @@ class Product extends Model implements HasMedia
             ->orderBy('trust_badges.sort_order');
     }
 
+    public function discountExclusions(): BelongsToMany
+    {
+        return $this->belongsToMany(Discount::class);
+    }
+
     public function primaryImage(): ?Media
     {
         return $this->getFirstMedia('primary') ?? $this->getFirstMedia('images');

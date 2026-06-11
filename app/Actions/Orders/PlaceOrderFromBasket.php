@@ -5,12 +5,14 @@ namespace App\Actions\Orders;
 use App\Enums\OrderStatus;
 use App\Models\Basket;
 use App\Models\BasketItem;
+use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductVariant;
 use App\Payments\Contracts\PaymentIntentResult;
 use App\Payments\Exceptions\PaymentException;
 use App\Payments\PaymentManager;
+use App\Services\DiscountCalculator;
 use App\Support\ShippingResolver;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +23,7 @@ class PlaceOrderFromBasket
     public function __construct(
         private readonly PaymentManager $payments,
         private readonly ShippingResolver $shipping,
+        private readonly DiscountCalculator $discounts,
     ) {}
 
     /**
@@ -68,10 +71,24 @@ class PlaceOrderFromBasket
                 ];
             }
 
+            $discount = $this->resolveDiscount($basket);
+            $discountTotal = $discount !== null
+                ? $this->discounts->amountPence($basket, $discount)
+                : 0;
+
+            // Defence in depth: if recalculated discount is zero (e.g. all
+            // eligible items were removed from the basket since apply),
+            // drop the discount reference so we don't snapshot a dead code.
+            if ($discount !== null && $discountTotal === 0) {
+                $discount = null;
+            }
+
+            $discountedSubtotal = max(0, $subtotal - $discountTotal);
+
             $quote = $this->shipping->resolve(
                 (string) $checkoutData['country'],
                 (string) $checkoutData['postal_code'],
-                $subtotal,
+                $discountedSubtotal,
             );
 
             if ($quote === null) {
@@ -87,8 +104,11 @@ class PlaceOrderFromBasket
                 'shipping_total' => $quote->costPence,
                 'shipping_zone_id' => $quote->zoneId,
                 'shipping_method_name' => $quote->zoneName,
+                'discount_id' => $discount?->id,
+                'discount_code' => $discount?->code,
+                'discount_total' => $discountTotal,
                 'tax_total' => 0,
-                'grand_total' => $subtotal + $quote->costPence,
+                'grand_total' => $discountedSubtotal + $quote->costPence,
                 'email' => (string) $checkoutData['email'],
                 'first_name' => (string) $checkoutData['first_name'],
                 'last_name' => (string) $checkoutData['last_name'],
@@ -124,6 +144,10 @@ class PlaceOrderFromBasket
                 }
             }
 
+            if ($discount !== null) {
+                Discount::query()->whereKey($discount->id)->increment('times_used');
+            }
+
             $basket->forceFill(['converted_at' => now()])->save();
 
             return $order->fresh();
@@ -132,6 +156,21 @@ class PlaceOrderFromBasket
         $intent = $this->payments->driver($gateway)->createIntent($order);
 
         return ['order' => $order->fresh(), 'intent' => $intent];
+    }
+
+    private function resolveDiscount(Basket $basket): ?Discount
+    {
+        if ($basket->discount_id === null) {
+            return null;
+        }
+
+        $discount = $basket->discount()->lockForUpdate()->first();
+
+        if ($discount === null || ! $discount->isCurrentlyValid() || ! $discount->isUsable($basket)) {
+            return null;
+        }
+
+        return $discount;
     }
 
     private function generateReference(): string

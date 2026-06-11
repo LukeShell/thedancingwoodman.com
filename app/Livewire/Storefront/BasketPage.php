@@ -17,6 +17,10 @@ class BasketPage extends Component
 
     public string $promoCode = '';
 
+    public ?string $promoError = null;
+
+    public ?string $promoSuccess = null;
+
     public function mount(BasketResolver $resolver): void
     {
         $this->basket = $resolver->current();
@@ -58,7 +62,33 @@ class BasketPage extends Component
 
     public function applyPromo(): void
     {
-        // TODO: hook up promo code lookup once discount rules are defined.
+        $this->promoError = null;
+        $this->promoSuccess = null;
+
+        if (trim($this->promoCode) === '') {
+            $this->promoError = __('Please enter a discount code.');
+
+            return;
+        }
+
+        if (! $this->basket->applyCode($this->promoCode)) {
+            $this->promoError = __('That code is not valid for your basket.');
+
+            return;
+        }
+
+        $this->basket->refresh();
+        $this->promoCode = '';
+        $this->promoSuccess = __('Discount applied.');
+    }
+
+    public function removePromo(): void
+    {
+        $this->basket->removeDiscount();
+        $this->basket->refresh();
+        $this->promoCode = '';
+        $this->promoError = null;
+        $this->promoSuccess = null;
     }
 
     public function render()
@@ -73,10 +103,16 @@ class BasketPage extends Component
             ->get();
 
         $subtotal = $items->sum(fn (BasketItem $item) => (float) $item->lineTotal());
+        $discount = $this->basket->discount;
+        $discountAmount = $this->basket->discountAmountPence() / 100;
+        $total = max(0, $subtotal - $discountAmount);
 
         return view('livewire.storefront.basket-page', [
             'items' => $items,
             'subtotal' => $subtotal,
+            'discount' => $discount,
+            'discountAmount' => $discountAmount,
+            'total' => $total,
         ]);
     }
 }

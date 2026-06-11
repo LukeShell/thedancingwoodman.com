@@ -42,4 +42,9 @@ class Category extends Model
     {
         return $this->belongsToMany(Product::class);
     }
+
+    public function discountExclusions(): BelongsToMany
+    {
+        return $this->belongsToMany(Discount::class);
+    }
 }

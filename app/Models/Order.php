@@ -24,6 +24,9 @@ class Order extends Model
         'shipping_total',
         'shipping_zone_id',
         'shipping_method_name',
+        'discount_id',
+        'discount_code',
+        'discount_total',
         'tax_total',
         'grand_total',
         'email',
@@ -45,6 +48,7 @@ class Order extends Model
         'status' => OrderStatus::class,
         'subtotal' => 'int',
         'shipping_total' => 'int',
+        'discount_total' => 'int',
         'tax_total' => 'int',
         'grand_total' => 'int',
         'placed_at' => 'datetime',
@@ -55,6 +59,11 @@ class Order extends Model
     public function basket(): BelongsTo
     {
         return $this->belongsTo(Basket::class);
+    }
+
+    public function discount(): BelongsTo
+    {
+        return $this->belongsTo(Discount::class);
     }
 
     public function shippingZone(): BelongsTo

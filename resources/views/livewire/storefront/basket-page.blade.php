@@ -149,6 +149,17 @@
                                     <span class="text-secondary">{{ __('Subtotal') }}</span>
                                     <x-storefront.price :amount="$subtotal" class="font-medium text-oak-deep" />
                                 </div>
+                                @if ($discount)
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-secondary">
+                                            {{ __('Discount') }}
+                                            <span class="ml-1 text-label-sm uppercase tracking-wider text-timber-ash">({{ $discount->code }})</span>
+                                        </span>
+                                        <span class="font-medium text-brand-accent">
+                                            -<x-storefront.price :amount="$discountAmount" />
+                                        </span>
+                                    </div>
+                                @endif
                                 <div class="flex items-start justify-between gap-4">
                                     <span class="text-secondary">{{ __('Shipping') }}</span>
                                     <span class="text-right text-label-sm uppercase tracking-wider text-timber-ash">
@@ -160,30 +171,50 @@
                             <div class="mb-8 border-t border-timber-ash/20 pt-6">
                                 <div class="flex items-end justify-between">
                                     <span class="font-display text-headline-md text-oak-deep">{{ __('Total') }}</span>
-                                    <x-storefront.price :amount="$subtotal" class="text-2xl font-bold text-oak-deep" />
+                                    <x-storefront.price :amount="$total" class="text-2xl font-bold text-oak-deep" />
                                 </div>
                             </div>
 
                             <div class="mb-8">
                                 <label for="promo-code" class="mb-2 block text-label-sm uppercase tracking-widest text-timber-ash">
-                                    {{ __('Promo Code') }}
+                                    {{ __('Discount Code') }}
                                 </label>
-                                <div class="flex gap-2">
-                                    <input
-                                        id="promo-code"
-                                        type="text"
-                                        wire:model="promoCode"
-                                        placeholder="{{ __('Enter code') }}"
-                                        class="flex-1 border-0 border-b border-timber-ash/30 bg-white px-0 text-body-md outline-none transition-colors focus:border-oak-deep focus:ring-0"
-                                    />
-                                    <button
-                                        type="button"
-                                        wire:click="applyPromo"
-                                        class="text-label-sm font-bold uppercase tracking-widest text-oak-deep transition-opacity hover:opacity-70"
-                                    >
-                                        {{ __('Apply') }}
-                                    </button>
-                                </div>
+                                @if ($discount)
+                                    <div class="flex items-center justify-between gap-2 border-b border-timber-ash/30 pb-2">
+                                        <span class="text-body-md font-medium text-oak-deep">{{ $discount->code }}</span>
+                                        <button
+                                            type="button"
+                                            wire:click="removePromo"
+                                            class="text-label-sm font-bold uppercase tracking-widest text-timber-ash transition-colors hover:text-brand-accent"
+                                        >
+                                            {{ __('Remove') }}
+                                        </button>
+                                    </div>
+                                @else
+                                    <div class="flex gap-2">
+                                        <input
+                                            id="promo-code"
+                                            type="text"
+                                            wire:model="promoCode"
+                                            wire:keydown.enter="applyPromo"
+                                            placeholder="{{ __('Enter code') }}"
+                                            class="flex-1 border-0 border-b border-timber-ash/30 bg-white px-0 text-body-md outline-none transition-colors focus:border-oak-deep focus:ring-0"
+                                        />
+                                        <button
+                                            type="button"
+                                            wire:click="applyPromo"
+                                            class="text-label-sm font-bold uppercase tracking-widest text-oak-deep transition-opacity hover:opacity-70"
+                                        >
+                                            {{ __('Apply') }}
+                                        </button>
+                                    </div>
+                                @endif
+                                @if ($promoError)
+                                    <p class="mt-2 text-label-sm text-brand-accent">{{ $promoError }}</p>
+                                @endif
+                                @if ($promoSuccess)
+                                    <p class="mt-2 text-label-sm text-secondary">{{ $promoSuccess }}</p>
+                                @endif
                             </div>
 
                             <x-storefront.button

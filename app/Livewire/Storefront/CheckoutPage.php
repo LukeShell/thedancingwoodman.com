@@ -42,6 +42,12 @@ class CheckoutPage extends Component
 
     public string $selectedGateway = 'stripe';
 
+    public string $promoCode = '';
+
+    public ?string $promoError = null;
+
+    public ?string $promoSuccess = null;
+
     public ?string $placementError = null;
 
     public ?ShippingQuote $shippingQuote = null;
@@ -138,10 +144,10 @@ class CheckoutPage extends Component
         $this->shippingError = null;
         $this->shippingQuote = null;
 
-        $subtotal = $this->subtotalPence();
+        $discountedSubtotal = max(0, $this->subtotalPence() - $this->basket->discountAmountPence());
 
         if ($this->country !== '' && trim($this->postalCode) !== '') {
-            $quote = $resolver->resolve($this->country, $this->postalCode, $subtotal);
+            $quote = $resolver->resolve($this->country, $this->postalCode, $discountedSubtotal);
 
             if ($quote === null) {
                 $this->shippingError = __('We can\'t ship to this address yet. Please check your country and postcode.');
@@ -150,7 +156,40 @@ class CheckoutPage extends Component
             }
         }
 
-        $this->grandTotalPence = $subtotal + ($this->shippingQuote?->costPence ?? 0);
+        $this->grandTotalPence = $discountedSubtotal + ($this->shippingQuote?->costPence ?? 0);
+    }
+
+    public function applyPromo(): void
+    {
+        $this->promoError = null;
+        $this->promoSuccess = null;
+
+        if (trim($this->promoCode) === '') {
+            $this->promoError = __('Please enter a discount code.');
+
+            return;
+        }
+
+        if (! $this->basket->applyCode($this->promoCode)) {
+            $this->promoError = __('That code is not valid for your basket.');
+
+            return;
+        }
+
+        $this->basket->refresh();
+        $this->promoCode = '';
+        $this->promoSuccess = __('Discount applied.');
+        $this->refreshShipping();
+    }
+
+    public function removePromo(): void
+    {
+        $this->basket->removeDiscount();
+        $this->basket->refresh();
+        $this->promoCode = '';
+        $this->promoError = null;
+        $this->promoSuccess = null;
+        $this->refreshShipping();
     }
 
     private function subtotalPence(): int
@@ -216,12 +255,16 @@ class CheckoutPage extends Component
 
         $subtotal = $items->sum(fn (BasketItem $item) => (float) $item->lineTotal());
 
+        $discount = $this->basket->discount;
+        $discountAmount = $this->basket->discountAmountPence() / 100;
         $shippingCost = $this->shippingQuote !== null ? $this->shippingQuote->costPence / 100 : 0.0;
-        $grandTotal = $subtotal + $shippingCost;
+        $grandTotal = max(0, $subtotal - $discountAmount) + $shippingCost;
 
         return view('livewire.storefront.checkout-page', [
             'items' => $items,
             'subtotal' => $subtotal,
+            'discount' => $discount,
+            'discountAmount' => $discountAmount,
             'shippingCost' => $shippingCost,
             'grandTotal' => $grandTotal,
             'countries' => Countries::list(),
