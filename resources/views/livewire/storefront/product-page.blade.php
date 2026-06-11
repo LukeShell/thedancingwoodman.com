@@ -27,19 +27,71 @@
     <x-storefront.section>
         <x-storefront.breadcrumb :items="$crumbs" class="mb-10" />
 
-        <div class="grid grid-cols-1 gap-gutter lg:grid-cols-12">
+        <div class="grid grid-cols-1 gap-x-4 lg:grid-cols-12">
             {{-- Gallery --}}
-            <div class="space-y-4 lg:col-span-7" x-data="{ active: 0 }">
-                <div class="aspect-square overflow-hidden bg-sapwood-cream">
+            <div
+                class="space-y-4 lg:col-span-7"
+                x-data="{
+                    active: 0,
+                    total: {{ count($imageUrls) }},
+                    lightboxOpen: false,
+                    touchStartX: null,
+                    next() { if (this.total > 1) this.active = (this.active + 1) % this.total },
+                    prev() { if (this.total > 1) this.active = (this.active - 1 + this.total) % this.total },
+                    openLightbox() { if (this.total > 0) this.lightboxOpen = true },
+                    closeLightbox() { this.lightboxOpen = false },
+                    onTouchStart(e) { this.touchStartX = e.changedTouches[0].screenX },
+                    onTouchEnd(e) {
+                        if (this.touchStartX === null) return;
+                        const dx = e.changedTouches[0].screenX - this.touchStartX;
+                        if (dx > 40) this.prev();
+                        else if (dx < -40) this.next();
+                        this.touchStartX = null;
+                    },
+                }"
+                x-effect="document.body.style.overflow = lightboxOpen ? 'hidden' : ''"
+            >
+                <div
+                    class="relative aspect-square overflow-hidden bg-sapwood-cream"
+                    @touchstart="onTouchStart($event)"
+                    @touchend="onTouchEnd($event)"
+                >
                     @if (! empty($imageUrls))
                         @foreach ($imageUrls as $i => $img)
                             <img
                                 x-show="active === {{ $i }}"
+                                @click="openLightbox()"
                                 src="{{ $img['full'] }}"
                                 alt="{{ $product->name }}"
-                                class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                                class="h-full w-full cursor-zoom-in object-cover transition-transform duration-700 hover:scale-105"
                             />
                         @endforeach
+
+                        @if (count($imageUrls) > 1)
+                            <button
+                                type="button"
+                                @click.stop="prev()"
+                                aria-label="{{ __('Previous image') }}"
+                                class="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-sm bg-sapwood-cream/90 text-oak-deep shadow-sm transition-opacity hover:bg-sapwood-cream focus:outline-none focus:ring-1 focus:ring-oak-deep"
+                            >
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <button
+                                type="button"
+                                @click.stop="next()"
+                                aria-label="{{ __('Next image') }}"
+                                class="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-sm bg-sapwood-cream/90 text-oak-deep shadow-sm transition-opacity hover:bg-sapwood-cream focus:outline-none focus:ring-1 focus:ring-oak-deep"
+                            >
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                            <div class="absolute bottom-4 right-4 bg-oak-deep/70 px-2 py-1 text-label-sm text-sapwood-cream">
+                                <span x-text="active + 1"></span> / {{ count($imageUrls) }}
+                            </div>
+                        @endif
                     @else
                         <div class="flex h-full w-full items-center justify-center text-timber-ash">
                             <x-storefront.placeholder-image class="h-24 w-24" />
@@ -64,6 +116,75 @@
                                 />
                             </button>
                         @endforeach
+                    </div>
+                @endif
+
+                {{-- Lightbox --}}
+                @if (! empty($imageUrls))
+                    <div
+                        x-show="lightboxOpen"
+                        x-cloak
+                        x-transition.opacity
+                        @keydown.escape.window="closeLightbox()"
+                        @keydown.arrow-left.window="if (lightboxOpen) prev()"
+                        @keydown.arrow-right.window="if (lightboxOpen) next()"
+                        @click="closeLightbox()"
+                        class="fixed inset-0 z-50 flex items-center justify-center bg-oak-deep/95 p-4 sm:p-12"
+                        role="dialog"
+                        aria-modal="true"
+                    >
+                        <button
+                            type="button"
+                            @click.stop="closeLightbox()"
+                            aria-label="{{ __('Close') }}"
+                            class="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-sm bg-sapwood-cream/90 text-oak-deep hover:bg-sapwood-cream focus:outline-none focus:ring-1 focus:ring-sapwood-cream"
+                        >
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <div
+                            class="relative flex h-full w-full max-w-6xl items-center justify-center"
+                            @touchstart="onTouchStart($event)"
+                            @touchend="onTouchEnd($event)"
+                        >
+                            @foreach ($imageUrls as $i => $img)
+                                <img
+                                    x-show="active === {{ $i }}"
+                                    @click.stop
+                                    src="{{ $img['full'] }}"
+                                    alt="{{ $product->name }}"
+                                    class="max-h-full max-w-full object-contain"
+                                />
+                            @endforeach
+
+                            @if (count($imageUrls) > 1)
+                                <button
+                                    type="button"
+                                    @click.stop="prev()"
+                                    aria-label="{{ __('Previous image') }}"
+                                    class="absolute left-0 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-sm bg-sapwood-cream/90 text-oak-deep hover:bg-sapwood-cream focus:outline-none focus:ring-1 focus:ring-sapwood-cream sm:-left-4"
+                                >
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click.stop="next()"
+                                    aria-label="{{ __('Next image') }}"
+                                    class="absolute right-0 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-sm bg-sapwood-cream/90 text-oak-deep hover:bg-sapwood-cream focus:outline-none focus:ring-1 focus:ring-sapwood-cream sm:-right-4"
+                                >
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-oak-deep/70 px-3 py-1 text-label-sm text-sapwood-cream">
+                                    <span x-text="active + 1"></span> / {{ count($imageUrls) }}
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 @endif
             </div>
