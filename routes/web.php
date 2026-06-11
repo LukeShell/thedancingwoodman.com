@@ -7,6 +7,7 @@ use App\Livewire\Storefront\OrderConfirmationPage;
 use App\Livewire\Storefront\ProductPage;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Room;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -27,9 +28,16 @@ Route::get('/shop', function () {
         ->orderBy('sort_order')
         ->get();
 
+    $rooms = Room::query()
+        ->where('is_active', true)
+        ->withCount(['products' => fn ($q) => $q->where('is_active', true)])
+        ->orderBy('sort_order')
+        ->get();
+
     $totalCount = Product::query()->where('is_active', true)->count();
 
     $activeCategory = null;
+    $activeRoom = null;
     $productsQuery = Product::query()->where('is_active', true);
 
     if ($slug = request('category')) {
@@ -37,6 +45,14 @@ Route::get('/shop', function () {
 
         if ($activeCategory) {
             $productsQuery->whereHas('categories', fn ($q) => $q->where('categories.id', $activeCategory->id));
+        }
+    }
+
+    if ($roomSlug = request('room')) {
+        $activeRoom = Room::query()->where('slug', $roomSlug)->first();
+
+        if ($activeRoom) {
+            $productsQuery->whereHas('rooms', fn ($q) => $q->where('rooms.id', $activeRoom->id));
         }
     }
 
@@ -53,9 +69,11 @@ Route::get('/shop', function () {
 
     return view('storefront.shop', [
         'categories' => $categories,
+        'rooms' => $rooms,
         'totalCount' => $totalCount,
         'products' => $products,
         'activeCategory' => $activeCategory,
+        'activeRoom' => $activeRoom,
         'sort' => $sort,
     ]);
 })->name('shop.index');

@@ -81,7 +81,7 @@ class ProductForm
                             ->imageEditor(),
                     ]),
 
-                Section::make('Categories')
+                Section::make('Categories & rooms')
                     ->schema([
                         Select::make('categories')
                             ->relationship('categories', 'name')
@@ -89,6 +89,12 @@ class ProductForm
                             ->preload()
                             ->searchable()
                             ->required(),
+
+                        Select::make('rooms')
+                            ->relationship('rooms', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable(),
                     ]),
 
                 Section::make('Customisation options')

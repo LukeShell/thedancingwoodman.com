@@ -35,6 +35,14 @@ class ProductsTable
                     ->limitList(3)
                     ->searchable(),
 
+                TextColumn::make('rooms.name')
+                    ->label('Rooms')
+                    ->badge()
+                    ->separator(',')
+                    ->limitList(3)
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('base_price')
                     ->money('GBP')
                     ->sortable(),
@@ -57,6 +65,10 @@ class ProductsTable
                 TernaryFilter::make('is_active'),
                 SelectFilter::make('categories')
                     ->relationship('categories', 'name')
+                    ->multiple()
+                    ->preload(),
+                SelectFilter::make('rooms')
+                    ->relationship('rooms', 'name')
                     ->multiple()
                     ->preload(),
             ])

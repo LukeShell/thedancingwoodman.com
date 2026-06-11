@@ -8,7 +8,7 @@
             <a href="{{ route('home') }}" class="hover:text-oak-deep">{{ __('Home') }}</a>
             <span aria-hidden="true">/</span>
             <span class="font-bold text-oak-deep">
-                {{ $activeCategory?->name ?? __('Shop All') }}
+                {{ collect([$activeCategory?->name, $activeRoom?->name])->filter()->implode(' · ') ?: __('Shop All') }}
             </span>
         </nav>
 
@@ -21,7 +21,7 @@
                     </h3>
                     <ul class="space-y-4">
                         <li>
-                            <a href="{{ route('shop.index') }}"
+                            <a href="{{ route('shop.index', array_filter(['room' => $activeRoom?->slug])) }}"
                                class="flex items-center justify-between text-body-md transition-colors {{ ! $activeCategory ? 'font-bold text-oak-deep' : 'text-secondary hover:text-oak-deep' }}">
                                 <span>{{ __('Shop All') }}</span>
                                 <span class="text-label-sm text-timber-ash">{{ $totalCount }}</span>
@@ -29,7 +29,7 @@
                         </li>
                         @foreach ($categories as $category)
                             <li>
-                                <a href="{{ route('shop.index', ['category' => $category->slug]) }}"
+                                <a href="{{ route('shop.index', array_filter(['category' => $category->slug, 'room' => $activeRoom?->slug])) }}"
                                    class="flex items-center justify-between text-body-md transition-colors {{ $activeCategory?->id === $category->id ? 'font-bold text-oak-deep' : 'text-secondary hover:text-oak-deep' }}">
                                     <span>{{ $category->name }}</span>
                                     <span class="text-label-sm text-timber-ash">{{ $category->products_count }}</span>
@@ -38,6 +38,31 @@
                         @endforeach
                     </ul>
                 </section>
+
+                @if ($rooms->isNotEmpty())
+                    <section>
+                        <h3 class="mb-6 text-label-sm uppercase tracking-[0.2em] text-oak-deep">
+                            {{ __('Rooms') }}
+                        </h3>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="{{ route('shop.index', array_filter(['category' => $activeCategory?->slug])) }}"
+                                   class="flex items-center justify-between text-body-md transition-colors {{ ! $activeRoom ? 'font-bold text-oak-deep' : 'text-secondary hover:text-oak-deep' }}">
+                                    <span>{{ __('All Rooms') }}</span>
+                                </a>
+                            </li>
+                            @foreach ($rooms as $room)
+                                <li>
+                                    <a href="{{ route('shop.index', array_filter(['category' => $activeCategory?->slug, 'room' => $room->slug])) }}"
+                                       class="flex items-center justify-between text-body-md transition-colors {{ $activeRoom?->id === $room->id ? 'font-bold text-oak-deep' : 'text-secondary hover:text-oak-deep' }}">
+                                        <span>{{ $room->name }}</span>
+                                        <span class="text-label-sm text-timber-ash">{{ $room->products_count }}</span>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </section>
+                @endif
 
                 <section class="border border-timber-ash/10 bg-sapwood-cream p-6">
                     <h4 class="mb-2 font-display text-headline-md text-oak-deep">{{ __('Custom Build?') }}</h4>
@@ -56,7 +81,7 @@
                 {{-- Toolbar --}}
                 <div class="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <h1 class="font-display text-headline-lg text-oak-deep">
-                        {{ $activeCategory?->name ?? __('All Products') }}
+                        {{ collect([$activeCategory?->name, $activeRoom?->name])->filter()->implode(' · ') ?: __('All Products') }}
                     </h1>
                     <div class="flex items-center gap-6">
                         @if ($products->total() > 0)
@@ -72,6 +97,9 @@
                         <form method="GET" action="{{ route('shop.index') }}" class="relative">
                             @if ($activeCategory)
                                 <input type="hidden" name="category" value="{{ $activeCategory->slug }}">
+                            @endif
+                            @if ($activeRoom)
+                                <input type="hidden" name="room" value="{{ $activeRoom->slug }}">
                             @endif
                             <select name="sort"
                                     onchange="this.form.submit()"

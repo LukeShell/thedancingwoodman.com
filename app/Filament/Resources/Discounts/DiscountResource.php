@@ -13,13 +13,13 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-
+use UnitEnum;
 class DiscountResource extends Resource
 {
     protected static ?string $model = Discount::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
-
+    protected static string | UnitEnum | null $navigationGroup = 'Configuration';
     protected static ?string $recordTitleAttribute = 'code';
 
     public static function form(Schema $schema): Schema

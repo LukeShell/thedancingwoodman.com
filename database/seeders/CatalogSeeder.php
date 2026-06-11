@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Finish;
 use App\Models\Product;
+use App\Models\Room;
 use App\Models\TrustBadge;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -28,16 +29,27 @@ class CatalogSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $livingRoom = Category::create([
-            'name' => 'Living Room',
-            'slug' => 'living-room',
-            'sort_order' => 2,
-            'is_active' => true,
+        $rooms = collect([
+            'Lounge',
+            'Dining Room',
+            'Kitchen',
+            'Bedroom',
+            'Bathroom',
+            'Office',
+            'Hallway',
+            'Garden',
+        ])->mapWithKeys(fn (string $name, int $i) => [
+            $name => Room::create([
+                'name' => $name,
+                'slug' => Str::slug($name),
+                'sort_order' => $i + 1,
+                'is_active' => true,
+            ]),
         ]);
 
-        $this->seedRoundDiningTable([$tables->id, $diningTables->id]);
-        $this->seedTvUnit([$livingRoom->id]);
-        $this->seedCoffeeTableWithBench([$livingRoom->id]);
+        $this->seedRoundDiningTable([$tables->id, $diningTables->id], [$rooms['Dining Room']->id]);
+        $this->seedTvUnit([], [$rooms['Lounge']->id]);
+        $this->seedCoffeeTableWithBench([$tables->id], [$rooms['Lounge']->id]);
     }
 
     private function attachStorefrontDefaults(Product $product): void
@@ -48,8 +60,9 @@ class CatalogSeeder extends Seeder
 
     /**
      * @param  array<int, int>  $categoryIds
+     * @param  array<int, int>  $roomIds
      */
-    private function seedRoundDiningTable(array $categoryIds): void
+    private function seedRoundDiningTable(array $categoryIds, array $roomIds): void
     {
         $product = Product::create([
             'name' => 'Rustic Round Oak Dining Table',
@@ -60,6 +73,7 @@ class CatalogSeeder extends Seeder
             'is_active' => true,
         ]);
         $product->categories()->sync($categoryIds);
+        $product->rooms()->sync($roomIds);
         $this->attachStorefrontDefaults($product);
 
         $diameter = $product->attributes()->create(['name' => 'Diameter', 'sort_order' => 1]);
@@ -93,8 +107,9 @@ class CatalogSeeder extends Seeder
 
     /**
      * @param  array<int, int>  $categoryIds
+     * @param  array<int, int>  $roomIds
      */
-    private function seedTvUnit(array $categoryIds): void
+    private function seedTvUnit(array $categoryIds, array $roomIds): void
     {
         $product = Product::create([
             'name' => 'Reclaimed Wood TV Unit',
@@ -105,6 +120,7 @@ class CatalogSeeder extends Seeder
             'is_active' => true,
         ]);
         $product->categories()->sync($categoryIds);
+        $product->rooms()->sync($roomIds);
         $this->attachStorefrontDefaults($product);
 
         $length = $product->attributes()->create(['name' => 'Length', 'sort_order' => 1]);
@@ -137,8 +153,9 @@ class CatalogSeeder extends Seeder
 
     /**
      * @param  array<int, int>  $categoryIds
+     * @param  array<int, int>  $roomIds
      */
-    private function seedCoffeeTableWithBench(array $categoryIds): void
+    private function seedCoffeeTableWithBench(array $categoryIds, array $roomIds): void
     {
         $product = Product::create([
             'name' => 'Chunky Coffee Table',
@@ -149,6 +166,7 @@ class CatalogSeeder extends Seeder
             'is_active' => true,
         ]);
         $product->categories()->sync($categoryIds);
+        $product->rooms()->sync($roomIds);
         $this->attachStorefrontDefaults($product);
 
         $finish = $product->attributes()->create(['name' => 'Finish', 'sort_order' => 1]);
