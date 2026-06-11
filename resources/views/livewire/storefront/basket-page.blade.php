@@ -42,26 +42,16 @@
                         </div>
 
                         @foreach ($items as $item)
-                            @php
-                                $product = $item->variant->product;
-                                $image = $product->primaryImage();
-                                $imageUrl = $image
-                                    ? ($image->hasGeneratedConversion('card') ? $image->getUrl('card') : $image->getUrl())
-                                    : null;
-                                $variantLines = $item->variant->attributeValues
-                                    ->map(fn ($v) => $v->attribute->name.': '.$v->value);
-                            @endphp
-
                             <div
                                 wire:key="item-{{ $item->id }}"
                                 class="group grid grid-cols-1 items-center gap-6 border-b border-timber-ash/10 py-8 md:grid-cols-12"
                             >
                                 <div class="flex gap-6 md:col-span-6">
                                     <div class="h-32 w-24 shrink-0 overflow-hidden bg-surface-container md:h-40 md:w-32">
-                                        @if ($imageUrl)
+                                        @if ($item->cardImageUrl())
                                             <img
-                                                src="{{ $imageUrl }}"
-                                                alt="{{ $product->name }}"
+                                                src="{{ $item->cardImageUrl() }}"
+                                                alt="{{ $item->variant->product->name }}"
                                                 class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                             />
                                         @endif
@@ -69,14 +59,14 @@
 
                                     <div class="flex flex-col justify-center">
                                         <a
-                                            href="{{ route('shop.show', $product) }}"
+                                            href="{{ route('shop.show', $item->variant->product) }}"
                                             wire:navigate
                                             class="mb-1 font-display text-headline-md text-oak-deep hover:underline"
                                         >
-                                            {{ $product->name }}
+                                            {{ $item->variant->product->name }}
                                         </a>
 
-                                        @foreach ($variantLines as $line)
+                                        @foreach ($item->variantLines() as $line)
                                             <p class="mb-2 text-label-md text-secondary">{{ $line }}</p>
                                         @endforeach
 
@@ -109,7 +99,7 @@
                                         :value="$item->quantity"
                                         :decrement="'decrementItem('.$item->id.')'"
                                         :increment="'incrementItem('.$item->id.')'"
-                                        :label="__('Quantity for :name', ['name' => $product->name])"
+                                        :label="__('Quantity for :name', ['name' => $item->variant->product->name])"
                                         class="h-10"
                                     />
                                 </div>

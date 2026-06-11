@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 
 class BasketItem extends Model
 {
@@ -58,5 +59,32 @@ class BasketItem extends Model
     public function lineTotal(): string
     {
         return number_format((float) $this->unitPrice() * $this->quantity, 2, '.', '');
+    }
+
+    public function cardImageUrl(): ?string
+    {
+        $image = $this->variant->product->primaryImage();
+
+        if (! $image) {
+            return null;
+        }
+
+        return $image->hasGeneratedConversion('card') ? $image->getUrl('card') : $image->getUrl();
+    }
+
+    public function variantSummary(string $separator = ' / '): string
+    {
+        return $this->variant->attributeValues
+            ->map(fn ($value) => $value->value)
+            ->implode($separator);
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    public function variantLines(): Collection
+    {
+        return $this->variant->attributeValues
+            ->map(fn ($value) => $value->attribute->name.': '.$value->value);
     }
 }

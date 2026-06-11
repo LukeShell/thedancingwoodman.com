@@ -17,7 +17,37 @@ Route::get('/', function () {
         ->take(3)
         ->get();
 
-    return view('storefront.home', ['featured' => $featured]);
+    $categories = [
+        [
+            'label' => __('Dining Tables'),
+            'meta' => __('Large Rectangular | Round | Indoor & Outdoor'),
+            'span' => 'md:col-span-8',
+            'image' => asset('images/home-bento-table.jpg'),
+        ],
+        [
+            'label' => __('Coffee Tables'),
+            'meta' => __('Wooden Coffee | Side Tables'),
+            'span' => 'md:col-span-4',
+            'image' => asset('images/home-bento-coffee.jpg'),
+        ],
+        [
+            'label' => __('Doors'),
+            'meta' => __('Industrial Steel Runner | Farmhouse'),
+            'span' => 'md:col-span-5',
+            'image' => asset('images/home-bento-door.jpg'),
+        ],
+        [
+            'label' => __('Accessories'),
+            'meta' => __('Bath Caddies | Serving Trays | Boards'),
+            'span' => 'md:col-span-7',
+            'image' => asset('images/home-bento-bath.jpg'),
+        ],
+    ];
+
+    return view('storefront.home', [
+        'featured' => $featured,
+        'categories' => $categories,
+    ]);
 })->name('home');
 
 Route::get('/shop', function () {

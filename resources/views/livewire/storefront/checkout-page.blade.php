@@ -225,29 +225,18 @@
                     {{-- Items --}}
                     <div class="space-y-6">
                         @foreach ($items as $item)
-                            @php
-                                $product = $item->variant->product;
-                                $image = $product->primaryImage();
-                                $imageUrl = $image
-                                    ? ($image->hasGeneratedConversion('card') ? $image->getUrl('card') : $image->getUrl())
-                                    : null;
-                                $variantLine = $item->variant->attributeValues
-                                    ->map(fn ($v) => $v->value)
-                                    ->implode(' / ');
-                            @endphp
-
                             <div class="flex gap-4" wire:key="summary-{{ $item->id }}">
                                 <div class="h-24 w-20 shrink-0 overflow-hidden bg-surface-container">
-                                    @if ($imageUrl)
-                                        <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="h-full w-full object-cover" />
+                                    @if ($item->cardImageUrl())
+                                        <img src="{{ $item->cardImageUrl() }}" alt="{{ $item->variant->product->name }}" class="h-full w-full object-cover" />
                                     @endif
                                 </div>
 
                                 <div class="flex flex-grow flex-col justify-between py-1">
                                     <div>
-                                        <p class="text-label-md uppercase tracking-wider text-oak-deep">{{ $product->name }}</p>
-                                        @if ($variantLine !== '')
-                                            <p class="text-label-sm uppercase tracking-wider text-timber-ash">{{ $variantLine }}</p>
+                                        <p class="text-label-md uppercase tracking-wider text-oak-deep">{{ $item->variant->product->name }}</p>
+                                        @if ($item->variantSummary() !== '')
+                                            <p class="text-label-sm uppercase tracking-wider text-timber-ash">{{ $item->variantSummary() }}</p>
                                         @endif
                                         @if ($item->finish)
                                             <p class="text-label-sm uppercase tracking-wider text-timber-ash">

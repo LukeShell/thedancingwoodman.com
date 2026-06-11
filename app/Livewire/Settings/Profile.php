@@ -4,6 +4,7 @@ namespace App\Livewire\Settings;
 
 use App\Concerns\ProfileValidationRules;
 use Flux\Flux;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -44,5 +45,10 @@ class Profile extends Component
         $user->save();
 
         Flux::toast(variant: 'success', text: __('Profile updated.'));
+    }
+
+    public function render(): View
+    {
+        return view('livewire.settings.profile');
     }
 }

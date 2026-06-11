@@ -121,14 +121,10 @@
                 @else
                     <div class="grid grid-cols-1 gap-x-gutter gap-y-12 md:grid-cols-2 lg:grid-cols-3">
                         @foreach ($products as $product)
-                            @php
-                                $image = $product->primaryImage();
-                                $primaryCategory = $product->categories->first();
-                            @endphp
                             <a href="{{ route('shop.show', $product) }}" class="group block cursor-pointer">
                                 <div class="relative mb-4 aspect-square overflow-hidden bg-surface-container">
-                                    @if ($image)
-                                        <img src="{{ $image->getUrl('card') }}"
+                                    @if ($product->primaryImage())
+                                        <img src="{{ $product->primaryImage()->getUrl('card') }}"
                                              alt="{{ $product->name }}"
                                              loading="lazy"
                                              class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -142,9 +138,9 @@
                                     <h3 class="font-sans text-body-lg text-oak-deep transition-colors group-hover:text-secondary">
                                         {{ $product->name }}
                                     </h3>
-                                    @if ($primaryCategory)
+                                    @if ($product->primaryCategory())
                                         <p class="text-label-md uppercase tracking-wider text-timber-ash">
-                                            {{ $primaryCategory->name }}
+                                            {{ $product->primaryCategory()->name }}
                                         </p>
                                     @endif
                                     <p class="mt-2 text-body-md font-bold text-oak-deep">

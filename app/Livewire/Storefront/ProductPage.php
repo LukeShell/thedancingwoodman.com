@@ -52,6 +52,58 @@ class ProductPage extends Component
     }
 
     #[Computed]
+    public function images(): Collection
+    {
+        $images = $this->product->getMedia('images');
+
+        if ($images->isEmpty() && ($primary = $this->product->getFirstMedia('primary'))) {
+            return collect([$primary]);
+        }
+
+        return $images;
+    }
+
+    /**
+     * @return array<int, array{full: string, thumb: string}>
+     */
+    #[Computed]
+    public function imageUrls(): array
+    {
+        return $this->images
+            ->map(fn ($media) => [
+                'full' => $media->getUrl(),
+                'thumb' => $media->hasGeneratedConversion('thumb') ? $media->getUrl('thumb') : $media->getUrl(),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array{label: string, url?: string}>
+     */
+    #[Computed]
+    public function breadcrumbs(): array
+    {
+        $crumbs = [
+            ['label' => __('Shop'), 'url' => route('shop.index')],
+        ];
+
+        $firstCategory = $this->product->categories->first();
+        $topCategory = $firstCategory?->parent ?? $firstCategory;
+
+        if ($topCategory) {
+            $crumbs[] = [
+                'label' => $topCategory->name,
+                'url' => route('shop.index', ['category' => $topCategory->slug]),
+            ];
+        }
+
+        $crumbs[] = ['label' => $this->product->name];
+
+        return $crumbs;
+    }
+
+    #[Computed]
     public function selectedVariant(): ?ProductVariant
     {
         if ($this->product->attributes->isEmpty()) {

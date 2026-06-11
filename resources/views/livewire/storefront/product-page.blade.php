@@ -1,31 +1,6 @@
-@php
-    $images = $product->getMedia('images');
-    if ($images->isEmpty() && ($primary = $product->getFirstMedia('primary'))) {
-        $images = collect([$primary]);
-    }
-
-    $imageUrls = $images->map(fn ($m) => [
-        'full' => $m->getUrl(),
-        'thumb' => $m->hasGeneratedConversion('thumb') ? $m->getUrl('thumb') : $m->getUrl(),
-    ])->values()->all();
-
-    $crumbs = [
-        ['label' => __('Shop'), 'url' => route('shop.index')],
-    ];
-
-    if ($topCategory = $product->categories->first()?->parent ?? $product->categories->first()) {
-        $crumbs[] = [
-            'label' => $topCategory->name,
-            'url' => route('shop.index', ['category' => $topCategory->slug]),
-        ];
-    }
-
-    $crumbs[] = ['label' => $product->name];
-@endphp
-
 <div>
     <x-storefront.section>
-        <x-storefront.breadcrumb :items="$crumbs" class="mb-10" />
+        <x-storefront.breadcrumb :items="$this->breadcrumbs" class="mb-10" />
 
         <div class="grid grid-cols-1 gap-x-4 lg:grid-cols-12">
             {{-- Gallery --}}
@@ -33,7 +8,7 @@
                 class="space-y-4 lg:col-span-7"
                 x-data="{
                     active: 0,
-                    total: {{ count($imageUrls) }},
+                    total: {{ count($this->imageUrls) }},
                     lightboxOpen: false,
                     touchStartX: null,
                     next() { if (this.total > 1) this.active = (this.active + 1) % this.total },
@@ -56,8 +31,8 @@
                     @touchstart="onTouchStart($event)"
                     @touchend="onTouchEnd($event)"
                 >
-                    @if (! empty($imageUrls))
-                        @foreach ($imageUrls as $i => $img)
+                    @if (! empty($this->imageUrls))
+                        @foreach ($this->imageUrls as $i => $img)
                             <img
                                 x-show="active === {{ $i }}"
                                 @click="openLightbox()"
@@ -67,7 +42,7 @@
                             />
                         @endforeach
 
-                        @if (count($imageUrls) > 1)
+                        @if (count($this->imageUrls) > 1)
                             <button
                                 type="button"
                                 @click.stop="prev()"
@@ -89,7 +64,7 @@
                                 </svg>
                             </button>
                             <div class="absolute bottom-4 right-4 bg-oak-deep/70 px-2 py-1 text-label-sm text-sapwood-cream">
-                                <span x-text="active + 1"></span> / {{ count($imageUrls) }}
+                                <span x-text="active + 1"></span> / {{ count($this->imageUrls) }}
                             </div>
                         @endif
                     @else
@@ -99,9 +74,9 @@
                     @endif
                 </div>
 
-                @if (count($imageUrls) > 1)
+                @if (count($this->imageUrls) > 1)
                     <div class="grid grid-cols-4 gap-4">
-                        @foreach ($imageUrls as $i => $img)
+                        @foreach ($this->imageUrls as $i => $img)
                             <button
                                 type="button"
                                 @click="active = {{ $i }}"
@@ -120,7 +95,7 @@
                 @endif
 
                 {{-- Lightbox --}}
-                @if (! empty($imageUrls))
+                @if (! empty($this->imageUrls))
                     <div
                         x-show="lightboxOpen"
                         x-cloak
@@ -149,7 +124,7 @@
                             @touchstart="onTouchStart($event)"
                             @touchend="onTouchEnd($event)"
                         >
-                            @foreach ($imageUrls as $i => $img)
+                            @foreach ($this->imageUrls as $i => $img)
                                 <img
                                     x-show="active === {{ $i }}"
                                     @click.stop
@@ -159,7 +134,7 @@
                                 />
                             @endforeach
 
-                            @if (count($imageUrls) > 1)
+                            @if (count($this->imageUrls) > 1)
                                 <button
                                     type="button"
                                     @click.stop="prev()"
@@ -181,7 +156,7 @@
                                     </svg>
                                 </button>
                                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-oak-deep/70 px-3 py-1 text-label-sm text-sapwood-cream">
-                                    <span x-text="active + 1"></span> / {{ count($imageUrls) }}
+                                    <span x-text="active + 1"></span> / {{ count($this->imageUrls) }}
                                 </div>
                             @endif
                         </div>

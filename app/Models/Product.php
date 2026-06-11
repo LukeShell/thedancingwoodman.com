@@ -99,4 +99,9 @@ class Product extends Model implements HasMedia
     {
         return $this->getFirstMedia('primary') ?? $this->getFirstMedia('images');
     }
+
+    public function primaryCategory(): ?Category
+    {
+        return $this->categories->first();
+    }
 }
