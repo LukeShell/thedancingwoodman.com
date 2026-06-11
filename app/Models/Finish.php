@@ -33,7 +33,7 @@ class Finish extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('swatch')->singleFile();
+        $this->addMediaCollection('swatch')->useDisk('public')->singleFile();
     }
 
     public function registerMediaConversions(?Media $media = null): void
