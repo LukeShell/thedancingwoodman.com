@@ -1,4 +1,4 @@
-<div>
+<div class="flex items-center">
     <a href="{{ route('basket.show') }}"
        class="relative inline-flex items-center transition-opacity hover:opacity-70 {{ request()->routeIs('basket.*') ? 'text-oak-deep' : 'text-oak-deep' }}"
        aria-label="{{ __('View basket') }}">

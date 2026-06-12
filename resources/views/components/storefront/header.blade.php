@@ -29,15 +29,6 @@
 
                 <livewire:storefront.basket-icon />
 
-                @auth
-                    <a href="{{ route('dashboard') }}" aria-label="{{ __('Account') }}" class="transition-opacity hover:opacity-70">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                  d="M16 14a4 4 0 10-8 0M12 11a3 3 0 100-6 3 3 0 000 6zM4 20a8 8 0 0116 0" />
-                        </svg>
-                    </a>
-                @endauth
-
                 <button type="button" aria-label="{{ __('Menu') }}" class="lg:hidden">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h16" />

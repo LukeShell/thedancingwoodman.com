@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\Products\RelationManagers;
 
+use App\Enums\AttributeDisplayType;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -29,6 +31,14 @@ class AttributesRelationManager extends RelationManager
                     ->helperText('e.g. Diameter, Length, Finish')
                     ->required()
                     ->maxLength(255),
+
+                Select::make('display_type')
+                    ->label('Display as')
+                    ->helperText('How customers pick a value on the product page.')
+                    ->options(AttributeDisplayType::class)
+                    ->default(AttributeDisplayType::Dropdown)
+                    ->native(false)
+                    ->required(),
 
                 TextInput::make('sort_order')
                     ->numeric()
@@ -61,6 +71,9 @@ class AttributesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
+                TextColumn::make('display_type')
+                    ->label('Display')
+                    ->badge(),
                 TextColumn::make('values_count')
                     ->label('Values')
                     ->counts('values')

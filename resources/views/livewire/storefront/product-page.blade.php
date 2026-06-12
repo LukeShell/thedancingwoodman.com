@@ -207,24 +207,39 @@
                                     {{ __('Select') }} {{ $attribute->name }}
                                 </label>
                             </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                @foreach ($attribute->values as $value)
-                                    @php $selected = ($selectedValues[$attribute->id] ?? null) === $value->id; @endphp
-                                    <button
-                                        type="button"
-                                        wire:click="selectValue({{ $attribute->id }}, {{ $value->id }})"
-                                        wire:key="val-{{ $value->id }}"
-                                        class="group relative overflow-hidden border p-3 text-left transition-colors outline-none focus:ring-1 focus:ring-oak-deep {{ $selected ? 'border-oak-deep' : 'border-timber-ash/30 hover:border-oak-deep' }}"
-                                    >
-                                        <span class="block font-sans text-label-md text-oak-deep">{{ $value->value }}</span>
-                                        @if ($selected)
-                                            <svg class="absolute right-1 top-1 h-4 w-4 text-oak-deep" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                            </svg>
-                                        @endif
-                                    </button>
-                                @endforeach
-                            </div>
+                            @if ($attribute->display_type === \App\Enums\AttributeDisplayType::Buttons)
+                                <div class="grid grid-cols-2 gap-3">
+                                    @foreach ($attribute->values as $value)
+                                        @php $selected = ($selectedValues[$attribute->id] ?? null) === $value->id; @endphp
+                                        <button
+                                            type="button"
+                                            wire:click="selectValue({{ $attribute->id }}, {{ $value->id }})"
+                                            wire:key="val-{{ $value->id }}"
+                                            class="group relative overflow-hidden border p-3 text-left transition-colors outline-none focus:ring-1 focus:ring-oak-deep {{ $selected ? 'border-oak-deep' : 'border-timber-ash/30 hover:border-oak-deep' }}"
+                                        >
+                                            <span class="block font-sans text-label-md text-oak-deep">{{ $value->value }}</span>
+                                            @if ($selected)
+                                                <svg class="absolute right-1 top-1 h-4 w-4 text-oak-deep" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                            @endif
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @else
+                                <flux:select
+                                    wire:change="selectValue({{ $attribute->id }}, $event.target.value)"
+                                    placeholder="{{ __('Select') }} {{ $attribute->name }}"
+                                >
+                                    @foreach ($attribute->values as $value)
+                                        <flux:select.option
+                                            wire:key="val-{{ $value->id }}"
+                                            value="{{ $value->id }}"
+                                            :selected="($selectedValues[$attribute->id] ?? null) === $value->id"
+                                        >{{ $value->value }}</flux:select.option>
+                                    @endforeach
+                                </flux:select>
+                            @endif
                         </div>
                     @endforeach
 
